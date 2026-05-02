@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingRoot: '/home/herbert/Projects/contaai',
 };
 
 export default nextConfig;
