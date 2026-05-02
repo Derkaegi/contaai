@@ -1,0 +1,25 @@
+services:
+  contaai:
+    image: contaai:latest
+    container_name: contaai
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+    networks:
+      - root_default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.contaai.rule=Host(`conta.srv988482.hstgr.cloud`)
+      - traefik.http.routers.contaai.tls=true
+      - traefik.http.routers.contaai.entrypoints=web,websecure
+      - traefik.http.routers.contaai.tls.certresolver=mytlschallenge
+      - traefik.http.services.contaai.loadbalancer.server.port=3000
+
+networks:
+  root_default:
+    external: true
