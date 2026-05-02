@@ -103,7 +103,7 @@ async function extractViaCLI(
       '--print', '--no-session-persistence', '--model', 'claude-haiku-4-5', '-p', prompt
     ], {
       env: { ...process.env, ANTHROPIC_API_KEY: '' },
-      timeout: 45000,
+      timeout: 90000,
       encoding: 'utf8',
       maxBuffer: 1024 * 1024,
     })

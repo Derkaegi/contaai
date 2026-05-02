@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { execSync } from 'child_process'
 import { isGwsAvailable } from '@/lib/provider'
+import { createServiceClient } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
 
@@ -16,11 +17,18 @@ export async function GET() {
   }
 
   try {
-    const output = execSync(
-      `${GWS} drive files list --format json --params '{"q":"\\"${DRIVE_INBOX_ID}\\" in parents and trashed=false and mimeType=\\"application/pdf\\"","fields":"files(id,name,mimeType,size,modifiedTime,parents)","orderBy":"modifiedTime desc"}'`,
-      { encoding: 'utf8', timeout: 15000 }
-    )
-    const data = JSON.parse(output)
+    const [driveOutput, dbResult] = await Promise.all([
+      Promise.resolve(execSync(
+        `${GWS} drive files list --format json --params '{"q":"\\"${DRIVE_INBOX_ID}\\" in parents and trashed=false and mimeType=\\"application/pdf\\"","fields":"files(id,name,mimeType,size,modifiedTime)","orderBy":"modifiedTime desc"}'`,
+        { encoding: 'utf8', timeout: 15000 }
+      )),
+      createServiceClient()
+        .from('documents')
+        .select('drive_file_id')
+        .not('drive_file_id', 'is', null),
+    ])
+
+    const data = JSON.parse(driveOutput)
     const files = (data.files ?? []).map((f: Record<string, string>) => ({
       id: f.id,
       name: f.name,
@@ -28,7 +36,12 @@ export async function GET() {
       size: parseInt(f.size ?? '0', 10),
       modifiedTime: f.modifiedTime,
     }))
-    return NextResponse.json({ files, folderId: DRIVE_INBOX_ID })
+
+    const importedIds: string[] = (dbResult.data ?? [])
+      .map((r: { drive_file_id: string }) => r.drive_file_id)
+      .filter(Boolean)
+
+    return NextResponse.json({ files, folderId: DRIVE_INBOX_ID, importedIds })
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }

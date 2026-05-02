@@ -26,6 +26,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'fileId and fileName required' }, { status: 400 })
   }
 
+  const db = createServiceClient()
+
+  // Dedup check — return existing document if already imported
+  const { data: existing } = await db
+    .from('documents')
+    .select('*')
+    .eq('drive_file_id', fileId)
+    .maybeSingle()
+
+  if (existing) {
+    return NextResponse.json({ ...existing, skipped: true }, { status: 200 })
+  }
+
   const safeName = fileName.replace(/[^a-z0-9._-]/gi, '_')
   const tmpPath = join(tmpdir(), `drive_${Date.now()}_${safeName}`)
 
@@ -46,8 +59,6 @@ export async function POST(req: NextRequest) {
   } finally {
     try { unlinkSync(tmpPath) } catch {}
   }
-
-  const db = createServiceClient()
 
   const storagePath = `inbox/${Date.now()}_${safeName}`
   const { error: uploadError } = await db.storage
@@ -82,6 +93,7 @@ export async function POST(req: NextRequest) {
     .from('documents')
     .insert({
       context,
+      drive_file_id: fileId,
       datum,
       typ,
       vendor,

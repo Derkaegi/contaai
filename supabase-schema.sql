@@ -22,10 +22,12 @@ create table documents (
   storage_path   text,
   storage_url    text,
   notizen        text,
-  extraction_raw jsonb
+  extraction_raw jsonb,
+  drive_file_id  text
 );
 
 create index on documents(context);
+create unique index on documents(drive_file_id) where drive_file_id is not null;
 create index on documents(year, quartal);
 create index on documents(typ);
 create index on documents(status);
