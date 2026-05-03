@@ -26,6 +26,8 @@ export interface Document {
   storage_url: string | null
   notizen: string | null
   extraction_raw: Record<string, unknown> | null
+  drive_file_id: string | null
+  cuenta: string | null
 }
 
 export interface ChatMessage {

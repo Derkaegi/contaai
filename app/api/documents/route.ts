@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   const kategorie = searchParams.get('kategorie')
   const status = searchParams.get('status')
   const context = searchParams.get('context')
+  const cuenta = searchParams.get('cuenta')
   const q = searchParams.get('q')
   const limit = parseInt(searchParams.get('limit') ?? '200', 10)
 
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
   if (kategorie) query = query.eq('kategorie', kategorie)
   if (status) query = query.eq('status', status)
   if (context) query = query.eq('context', context)
+  if (cuenta) query = query.eq('cuenta', cuenta)
   if (q) query = query.ilike('vendor', `%${q}%`)
 
   const { data, error } = await query

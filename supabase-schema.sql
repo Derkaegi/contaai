@@ -23,11 +23,13 @@ create table documents (
   storage_url    text,
   notizen        text,
   extraction_raw jsonb,
-  drive_file_id  text
+  drive_file_id  text,
+  cuenta         text
 );
 
 create index on documents(context);
 create unique index on documents(drive_file_id) where drive_file_id is not null;
+create index on documents(cuenta) where cuenta is not null;
 create index on documents(year, quartal);
 create index on documents(typ);
 create index on documents(status);

@@ -2,6 +2,11 @@
 
 import { BUSINESS_CATEGORIES, PERSONAL_CATEGORIES } from '@/lib/types'
 
+const CAIXA_ACCOUNTS = [
+  { value: '2100 1008 41 02 00701461', label: 'CaixaBank Current' },
+  { value: '2100 3219 79 21 00951922', label: 'CaixaBank Savings' },
+]
+
 interface FilterBarProps {
   year: string
   quartal: string
@@ -9,6 +14,7 @@ interface FilterBarProps {
   typ: string
   kategorie: string
   status: string
+  cuenta: string
   q: string
   onChange: (key: string, value: string) => void
 }
@@ -18,7 +24,7 @@ const QUARTERS = ['', 'Q1', 'Q2', 'Q3', 'Q4']
 const BUSINESS_TYPES = ['', 'AUS', 'EIN', 'BEH', 'BEL']
 const PERSONAL_TYPES = ['', 'expense', 'income', 'transfer']
 
-export default function FilterBar({ year, quartal, context, typ, kategorie, status, q, onChange }: FilterBarProps) {
+export default function FilterBar({ year, quartal, context, typ, kategorie, status, cuenta, q, onChange }: FilterBarProps) {
   const types = context === 'personal' ? PERSONAL_TYPES : BUSINESS_TYPES
   const categories = context === 'personal' ? PERSONAL_CATEGORIES : BUSINESS_CATEGORIES
 
@@ -89,6 +95,18 @@ export default function FilterBar({ year, quartal, context, typ, kategorie, stat
         <option value="offen">Open</option>
         <option value="bezahlt">Paid</option>
         <option value="gebucht">Booked</option>
+      </select>
+
+      <select
+        className="ca-input"
+        style={{ width: '160px' }}
+        value={cuenta}
+        onChange={(e) => onChange('cuenta', e.target.value)}
+      >
+        <option value="">All accounts</option>
+        {CAIXA_ACCOUNTS.map(a => (
+          <option key={a.value} value={a.value}>{a.label}</option>
+        ))}
       </select>
     </div>
   )

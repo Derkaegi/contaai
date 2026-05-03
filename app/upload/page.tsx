@@ -5,9 +5,10 @@ import DropZone from '@/components/upload/DropZone'
 import ExtractionPreview from '@/components/upload/ExtractionPreview'
 import DriveInbox from '@/components/upload/DriveInbox'
 import RevolutImport from '@/components/upload/RevolutImport'
+import BankImport from '@/components/upload/BankImport'
 import type { Document, DocumentContext } from '@/lib/types'
 
-type Tab = 'upload' | 'drive' | 'revolut'
+type Tab = 'upload' | 'drive' | 'revolut' | 'bank'
 
 export default function UploadPage() {
   const [tab, setTab] = useState<Tab>('upload')
@@ -81,9 +82,16 @@ export default function UploadPage() {
           >
             Revolut CSV
           </button>
+          <button
+            className={`context-tab ${tab === 'bank' ? 'active' : ''}`}
+            style={{ minHeight: '32px', padding: '4px 16px' }}
+            onClick={() => setTab('bank')}
+          >
+            Bank Statement
+          </button>
         </div>
 
-        {tab !== 'revolut' && (
+        {tab !== 'revolut' && tab !== 'bank' && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 600 }}>Context:</span>
             <button className={`context-tab ${context === 'business' ? 'active' : ''}`} onClick={() => setContext('business')}>
@@ -125,6 +133,10 @@ export default function UploadPage() {
 
       {tab === 'revolut' && (
         <RevolutImport />
+      )}
+
+      {tab === 'bank' && (
+        <BankImport />
       )}
     </div>
   )
