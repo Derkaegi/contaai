@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { fileId, fileName, context = 'business' } = body
+  const { fileId, fileName, context = 'business', mimeType = '' } = body
 
   if (!fileId || !fileName) {
     return NextResponse.json({ error: 'fileId and fileName required' }, { status: 400 })
@@ -39,14 +39,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ...existing, skipped: true }, { status: 200 })
   }
 
-  const safeName = fileName.replace(/[^a-z0-9._-]/gi, '_')
+  const isGoogleSheet = mimeType === 'application/vnd.google-apps.spreadsheet'
+  const isGoogleDoc = mimeType === 'application/vnd.google-apps.document'
+  const needsExport = isGoogleSheet || isGoogleDoc
+
+  const safeName = (needsExport
+    ? fileName.replace(/[^a-z0-9._-]/gi, '_').replace(/\.?$/, '') + '.pdf'
+    : fileName.replace(/[^a-z0-9._-]/gi, '_')
+  )
   const tmpPath = join(tmpdir(), `drive_${Date.now()}_${safeName}`)
 
   try {
-    execSync(
-      `${GWS} drive files get -o "${tmpPath}" --params '{"fileId":"${fileId}","alt":"media"}'`,
-      { encoding: 'utf8', timeout: 30000 }
-    )
+    if (needsExport) {
+      execSync(
+        `${GWS} drive files export -o "${tmpPath}" --params '{"fileId":"${fileId}","mimeType":"application/pdf"}'`,
+        { encoding: 'utf8', timeout: 30000 }
+      )
+    } else {
+      execSync(
+        `${GWS} drive files get -o "${tmpPath}" --params '{"fileId":"${fileId}","alt":"media"}'`,
+        { encoding: 'utf8', timeout: 30000 }
+      )
+    }
   } catch (err) {
     return NextResponse.json({ error: `Drive download failed: ${(err as Error).message}` }, { status: 500 })
   }
