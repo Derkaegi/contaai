@@ -4,9 +4,10 @@ import { useState } from 'react'
 import DropZone from '@/components/upload/DropZone'
 import ExtractionPreview from '@/components/upload/ExtractionPreview'
 import DriveInbox from '@/components/upload/DriveInbox'
+import RevolutImport from '@/components/upload/RevolutImport'
 import type { Document, DocumentContext } from '@/lib/types'
 
-type Tab = 'upload' | 'drive'
+type Tab = 'upload' | 'drive' | 'revolut'
 
 export default function UploadPage() {
   const [tab, setTab] = useState<Tab>('upload')
@@ -73,17 +74,26 @@ export default function UploadPage() {
           >
             Drive Inbox
           </button>
+          <button
+            className={`context-tab ${tab === 'revolut' ? 'active' : ''}`}
+            style={{ minHeight: '32px', padding: '4px 16px' }}
+            onClick={() => setTab('revolut')}
+          >
+            Revolut CSV
+          </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 600 }}>Context:</span>
-          <button className={`context-tab ${context === 'business' ? 'active' : ''}`} onClick={() => setContext('business')}>
-            Business
-          </button>
-          <button className={`context-tab ${context === 'personal' ? 'active' : ''}`} onClick={() => setContext('personal')}>
-            Personal
-          </button>
-        </div>
+        {tab !== 'revolut' && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 600 }}>Context:</span>
+            <button className={`context-tab ${context === 'business' ? 'active' : ''}`} onClick={() => setContext('business')}>
+              Business
+            </button>
+            <button className={`context-tab ${context === 'personal' ? 'active' : ''}`} onClick={() => setContext('personal')}>
+              Personal
+            </button>
+          </div>
+        )}
       </div>
 
       {tab === 'upload' && (
@@ -111,6 +121,10 @@ export default function UploadPage() {
 
       {tab === 'drive' && (
         <DriveInbox context={context} />
+      )}
+
+      {tab === 'revolut' && (
+        <RevolutImport />
       )}
     </div>
   )
